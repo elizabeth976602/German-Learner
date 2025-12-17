@@ -1,0 +1,244 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2867
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+{\*\expandedcolortbl;;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww29200\viewh18460\viewkind0
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 <!DOCTYPE html>\
+<html lang="en">\
+<head>\
+  <meta charset="UTF-8">\
+  <title>Language Quest</title>\
+  <style>\
+    body \{\
+      font-family: "Segoe UI", sans-serif;\
+      background: linear-gradient(135deg, #fce7f3, #e0f2fe);\
+      color: #374151;\
+      margin: 0;\
+      padding: 0;\
+    \}\
+\
+    h1, h2 \{\
+      text-align: center;\
+    \}\
+\
+    .container \{\
+      max-width: 900px;\
+      margin: auto;\
+      padding: 20px;\
+    \}\
+\
+    .card \{\
+      background: #ffffffcc;\
+      border-radius: 16px;\
+      padding: 20px;\
+      margin-bottom: 20px;\
+      box-shadow: 0 10px 25px rgba(0,0,0,0.05);\
+    \}\
+\
+    button \{\
+      background: #c4b5fd;\
+      border: none;\
+      padding: 10px 16px;\
+      border-radius: 10px;\
+      cursor: pointer;\
+      font-weight: bold;\
+    \}\
+\
+    button:hover \{\
+      background: #a78bfa;\
+      color: white;\
+    \}\
+\
+    select, input \{\
+      padding: 8px;\
+      border-radius: 8px;\
+      border: 1px solid #ddd;\
+      margin: 6px 0;\
+      width: 100%;\
+    \}\
+\
+    .avatar \{\
+      font-size: 40px;\
+      cursor: pointer;\
+      margin: 5px;\
+    \}\
+\
+    .avatar.selected \{\
+      border: 2px solid #a78bfa;\
+      border-radius: 50%;\
+    \}\
+\
+    .hidden \{\
+      display: none;\
+    \}\
+\
+    .flashcard \{\
+      text-align: center;\
+      font-size: 24px;\
+      padding: 40px;\
+    \}\
+  </style>\
+</head>\
+<body>\
+\
+<div class="container">\
+\
+  <h1>\uc0\u55356 \u57144  Language Quest \u55356 \u57144 </h1>\
+\
+  <!-- SETUP -->\
+  <div class="card" id="setup">\
+    <h2>Create Your Avatar</h2>\
+\
+    <div id="avatars">\
+      <span class="avatar">\uc0\u55358 \u56785 \u8205 \u55357 \u56960 </span>\
+      <span class="avatar">\uc0\u55358 \u56793 \u8205 \u9792 \u65039 </span>\
+      <span class="avatar">\uc0\u55358 \u56785 \u8205 \u55356 \u57256 </span>\
+      <span class="avatar">\uc0\u55358 \u56797 </span>\
+      <span class="avatar">\uc0\u55357 \u56369 </span>\
+    </div>\
+\
+    <input id="username" placeholder="Choose a username">\
+\
+    <select id="language">\
+      <option value="">Choose a language</option>\
+      <option value="Spanish">Spanish</option>\
+      <option value="German">German</option>\
+      <option value="French">French</option>\
+    </select>\
+\
+    <select id="topic">\
+      <option>Basics</option>\
+      <option>Food</option>\
+      <option>Travel</option>\
+      <option>School</option>\
+    </select>\
+\
+    <select id="difficulty">\
+      <option>Easy</option>\
+      <option>Medium</option>\
+      <option>Hard</option>\
+    </select>\
+\
+    <label>\
+      <input type="checkbox" id="timer"> Timed / Competition Mode\
+    </label>\
+\
+    <br><br>\
+    <button onclick="startQuiz()">Start Quiz</button>\
+  </div>\
+\
+  <!-- QUIZ -->\
+  <div class="card hidden" id="quiz">\
+    <h2 id="question"></h2>\
+\
+    <select id="answer">\
+      <option>Choose an answer</option>\
+    </select>\
+\
+    <br><br>\
+    <button onclick="submitAnswer()">Submit</button>\
+  </div>\
+\
+  <!-- RESULTS -->\
+  <div class="card hidden" id="results">\
+    <h2>\uc0\u55356 \u57225  Quiz Complete!</h2>\
+    <p id="score"></p>\
+    <button onclick="showFlashcards()">View Flashcards</button>\
+  </div>\
+\
+  <!-- FLASHCARDS -->\
+  <div class="card hidden" id="flashcards">\
+    <div class="flashcard" id="flashcardText"></div>\
+    <button onclick="playAudio()">\uc0\u55357 \u56586  Pronounce</button>\
+    <br><br>\
+    <button onclick="nextFlashcard()">Next</button>\
+  </div>\
+\
+</div>\
+\
+<script>\
+  let selectedAvatar = "";\
+  let currentQuestion = 0;\
+  let score = 0;\
+\
+  const quizData = [\
+    \{ q: "Hola means?", a: ["Hello", "Bye", "Thanks"], correct: 0, word: "Hola" \},\
+    \{ q: "Danke means?", a: ["Please", "Thanks", "Sorry"], correct: 1, word: "Danke" \},\
+    \{ q: "Bonjour means?", a: ["Goodbye", "Hello", "Night"], correct: 1, word: "Bonjour" \}\
+  ];\
+\
+  let flashIndex = 0;\
+\
+  document.querySelectorAll(".avatar").forEach(a => \{\
+    a.onclick = () => \{\
+      document.querySelectorAll(".avatar").forEach(v => v.classList.remove("selected"));\
+      a.classList.add("selected");\
+      selectedAvatar = a.textContent;\
+    \}\
+  \});\
+\
+  function startQuiz() \{\
+    if (!selectedAvatar || !username.value || !language.value) \{\
+      alert("Please complete setup!");\
+      return;\
+    \}\
+    setup.classList.add("hidden");\
+    quiz.classList.remove("hidden");\
+    loadQuestion();\
+  \}\
+\
+  function loadQuestion() \{\
+    let q = quizData[currentQuestion];\
+    question.textContent = q.q;\
+    answer.innerHTML = "";\
+    q.a.forEach((opt, i) => \{\
+      let o = document.createElement("option");\
+      o.value = i;\
+      o.textContent = opt;\
+      answer.appendChild(o);\
+    \});\
+  \}\
+\
+  function submitAnswer() \{\
+    if (answer.value == quizData[currentQuestion].correct) score++;\
+    currentQuestion++;\
+\
+    if (currentQuestion < quizData.length) \{\
+      loadQuestion();\
+    \} else \{\
+      quiz.classList.add("hidden");\
+      results.classList.remove("hidden");\
+      scoreText();\
+    \}\
+  \}\
+\
+  function scoreText() \{\
+    score.innerHTML = `You scored $\{score\} / $\{quizData.length\}`;\
+  \}\
+\
+  function showFlashcards() \{\
+    results.classList.add("hidden");\
+    flashcards.classList.remove("hidden");\
+    showFlashcard();\
+  \}\
+\
+  function showFlashcard() \{\
+    flashcardText.textContent = quizData[flashIndex].word;\
+  \}\
+\
+  function nextFlashcard() \{\
+    flashIndex = (flashIndex + 1) % quizData.length;\
+    showFlashcard();\
+  \}\
+\
+  function playAudio() \{\
+    let utterance = new SpeechSynthesisUtterance(flashcardText.textContent);\
+    speechSynthesis.speak(utterance);\
+  \}\
+</script>\
+\
+</body>\
+</html>\
+}
